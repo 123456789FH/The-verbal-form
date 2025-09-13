@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>تحويل العدد من الصيغة القياسية إلى الصيغة اللفظية - صف ثالث</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes pop { 0%{transform:scale(.97);opacity:.8} 100%{transform:scale(1);opacity:1} }
+    .soft-bg{ background:
+      radial-gradient(1200px 600px at 80% -10%, #93c5fd33, transparent 60%),
+      radial-gradient(1200px 600px at -20% 110%, #0ea5e933, transparent 60%),
+      #1e3a8a;
+    }
+    .card{ backdrop-filter: blur(8px); background: rgba(255,255,255,.10); }
+    .accent{ background: linear-gradient(135deg,#22d3ee,#3b82f6); }
+    .accent-text{ background: linear-gradient(135deg,#22d3ee,#3b82f6); -webkit-background-clip:text; background-clip:text; color: transparent; }
+    .num-chip{ background: linear-gradient(135deg,#fde68a,#fcd34d); color:#111827; }
+    .logo-wrap img{
+      display:block;
+      width:clamp(180px, 22vw, 280px); height:clamp(180px, 22vw, 280px);
+      object-fit: contain;
+      image-rendering: auto;
+      filter:none;
+    }
+    #analysis{
+      direction: rtl; unicode-bidi: isolate;
+      display: flex; flex-direction: row; flex-wrap: wrap; gap: .45rem; align-items: center;
+    }
+    #analysis .seg{
+      display:inline-flex; align-items:center; padding:4px 10px; border-radius:.7rem;
+      background: rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.12);
+    }
+    #analysis .seg:not(:last-child)::after{
+      content:" + "; opacity:.85; margin-inline:.35rem;
+    }
+    .btn-muted{ background: rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); }
+  </style>
+</head>
+<body class="soft-bg min-h-screen text-slate-100" style="font-family: system-ui, -apple-system, 'Tajawal', 'Noto Naskh Arabic', 'Noto Sans Arabic', Arial, sans-serif;">
+  <div class="max-w-5xl mx-auto px-4 py-10">
+    <header class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-8">
+      <div class="flex-1">
+        <h1 class="text-3xl md:text-4xl font-extrabold leading-tight">تحويل العدد من الصيغة القياسية إلى الصيغة اللفظية</h1>
+        <p class="text-slate-200 mt-2">لطلاب الصف الثالث الابتدائي — المدى 0 إلى 99,999</p>
+        <div class="mt-3 flex items-center gap-2 text-xs text-slate-100/90">
+          <span class="px-3 py-1 rounded-full border border-white/10 bg-white/5">فصحى قياسية</span>
+          <label class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 cursor-pointer">
+            <input id="auto-toggle" type="checkbox" class="accent-cyan-400">
+            <span>تحويل تلقائي عند الكتابة</span>
+          </label>
+        </div>
+      </div>
+      <div class="logo-wrap self-start md:self-end">
+        <img src="https://d.top4top.io/p_35209x7gh1.png" alt="شعار الملتقى">
+      </div>
+    </header>
+
+    <section class="card rounded-2xl p-6 md:p-8 border border-white/10 animate-[pop_.2s_ease-out]">
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="md:col-span-2">
+          <label for="number-input" class="block text-sm text-slate-200 mb-2">اكتب العدد (0 → 99,999):</label>
+          <div class="flex gap-3">
+            <input id="number-input" type="number" min="0" max="99999" placeholder="مثال: 15423"
+                   class="flex-1 rounded-xl bg-white/10 border border-white/10 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-300/40 placeholder:text-slate-300" />
+            <button id="convert-btn" class="accent text-slate-900 font-bold px-4 py-3 rounded-xl shadow hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-cyan-300/60">حوّل</button>
+          </div>
+
+          <div id="result-wrap" class="mt-4 hidden space-y-3">
+            <div class="flex items-center gap-2">
+              <div id="result" class="flex-1 rounded-xl px-4 py-3 bg-emerald-400/15 text-emerald-50 border border-emerald-400/30" aria-live="polite"></div>
+              <button id="copy-btn" title="نسخ اللفظية" class="px-3 py-2 rounded-lg btn-muted hover:bg-white/15">نسخ</button>
+              <button id="speak-btn" title="قراءة صوتية" class="px-3 py-2 rounded-lg btn-muted hover:bg-white/15">استمع</button>
+            </div>
+            <div id="chips" class="flex flex-wrap gap-2"></div>
+
+            <div id="analysis-wrap" class="hidden">
+              <div class="rounded-xl px-4 py-3 bg-sky-400/15 text-sky-50 border border-sky-400/30">
+                <div class="flex items-center justify-between gap-2 mb-1">
+                  <div class="font-bold">الصيغة التحليلية للعدد (بدءًا بالأحاد)</div>
+                  <button id="copy-analysis" class="px-2 py-1 text-xs rounded-md btn-muted hover:bg-white/15">نسخ التحليل</button>
+                </div>
+                <div id="analysis" class="text-sm"></div>
+              </div>
+            </div>
+          </div>
+
+          <div id="error-wrap" class="mt-4 hidden">
+            <div id="error" class="rounded-xl px-4 py-3 bg-rose-400/15 text-rose-50 border border-rose-400/30"></div>
+          </div>
+        </div>
+
+        <aside class="md:col-span-1">
+          <div class="rounded-2xl p-5 border border-white/10 bg-white/5">
+            <div class="font-bold mb-2 accent-text">أمثلة سريعة</div>
+            <ul class="space-y-2 text-slate-100">
+              <li><button class="example-btn hover:underline" data-val="15023">15023</button> ➜ <span class="text-slate-200 text-sm">خمسة عشر ألفًا وثلاثة وعشرون</span></li>
+              <li><button class="example-btn hover:underline" data-val="20000">20000</button> ➜ <span class="text-slate-200 text-sm">عشرون ألفًا</span></li>
+              <li><button class="example-btn hover:underline" data-val="1000">1000</button> ➜ <span class="text-slate-200 text-sm">ألف</span></li>
+            </ul>
+            <div class="mt-4">
+              <button id="random-btn" class="w-full bg-indigo-400 text-indigo-950 font-bold px-4 py-2 rounded-xl hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-indigo-300/60">رقم عشوائي</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <footer class="mt-10 text-center text-slate-200 text-sm space-y-1">
+      <div class="text-slate-100">برمجة: أ/ فاطمة هزازي</div>
+      <div class="text-slate-100/90">
+        ملتقى معلمي ومعلمات الرياضيات · ملتقى التعليم التفاعلي —
+        <a href="https://t.me/ITG_KSA" target="_blank" class="underline hover:opacity-90">قناة الملتقى على تليجرام</a>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    (function(){
+      const ones = ["صفر","واحد","اثنان","ثلاثة","أربعة","خمسة","ستة","سبعة","ثمانية","تسعة"];
+      const onesAcc = ["صفر","واحدًا","اثنين","ثلاثةً","أربعةً","خمسةً","ستةً","سبعةً","ثمانيةً","تسعةً"];
+      const teens = ["عشرة","أحد عشر","اثنا عشر","ثلاثة عشر","أربعة عشر","خمسة عشر","ستة عشر","سبعة عشر","ثمانية عشر","تسعة عشر"];
+      const tens = ["","عشرة","عشرون","ثلاثون","أربعون","خمسون","ستون","سبعون","ثمانون","تسعون"];
+      const hundreds = ["","مئة","مئتان","ثلاثمئة","أربعمئة","خمسمئة","ستمئة","سبعمئة","ثمانمئة","تسعمئة"];
+
+      function formatArabic(n){
+        try{ return Number(n).toLocaleString('ar-EG'); }
+        catch(e){
+          const map = {'0':'٠','1':'١','2':'٢','3':'٣','4':'٤','5':'٥','6':'٦','7':'٧','8':'٨','9':'٩'};
+          return String(n).replace(/,/g,'٬').replace(/[0-9]/g, d=>map[d]);
+        }
+      }
+      function twoDigits(n, useAcc=false){
+        if(n<10) return useAcc ? onesAcc[n] : ones[n];
+        if(n<20) return teens[n-10];
+        const t=Math.floor(n/10), u=n%10;
+        if(u===0) return tens[t];
+        return (useAcc?onesAcc[u]:ones[u]) + " و" + tens[t];
+      }
+      function threeDigits(n){
+        if(n<100) return twoDigits(n);
+        const h=Math.floor(n/100), r=n%100;
+        return r===0 ? hundreds[h] : (hundreds[h] + " و" + twoDigits(r));
+      }
+      function numberToWords(n){
+        if(n===0) return "صفر";
+        if(n<1000) return threeDigits(n);
+        const th=Math.floor(n/1000), r=n%1000;
+        let thPart="";
+        if(th===1) thPart="ألف";
+        else if(th===2) thPart="ألفان";
+        else if(th>=3 && th<=10) thPart=ones[th] + " آلاف";
+        else if(th>=11 && th<=19) thPart=teens[th-10] + " ألفًا";
+        else thPart=twoDigits(th,true) + " ألفًا";
+        if(r===0) return thPart;
+        return thPart + " و" + threeDigits(r);
+      }
+      function expandedFormOnesFirst(n){
+        if(n===0) return [formatArabic(0)];
+        const onesVal = n % 10;
+        const tensVal = Math.floor(n / 10) % 10;
+        const hundredsVal = Math.floor(n / 100) % 10;
+        const thousandsVal = Math.floor(n / 1000) % 10;
+        const tenThousandsVal = Math.floor(n / 10000) % 10;
+        const parts = [];
+        if(onesVal>0) parts.push(formatArabic(onesVal));
+        if(tensVal>0) parts.push(formatArabic(tensVal*10));
+        if(hundredsVal>0) parts.push(formatArabic(hundredsVal*100));
+        if(thousandsVal>0) parts.push(formatArabic(thousandsVal*1000));
+        if(tenThousandsVal>0) parts.push(formatArabic(tenThousandsVal*10000));
+        return parts;
+      }
+
+      // UI hooks
+      const inEl = document.getElementById('number-input');
+      const btn = document.getElementById('convert-btn');
+      const resWrap = document.getElementById('result-wrap');
+      const res = document.getElementById('result');
+      const errWrap = document.getElementById('error-wrap');
+      const err = document.getElementById('error');
+      const randomBtn = document.getElementById('random-btn');
+      const exampleBtns = document.querySelectorAll('.example-btn');
+      const copyBtn = document.getElementById('copy-btn');
+      const speakBtn = document.getElementById('speak-btn');
+      const chips = document.getElementById('chips');
+      const autoToggle = document.getElementById('auto-toggle');
+      const analysisWrap = document.getElementById('analysis-wrap');
+      const analysisDiv = document.getElementById('analysis');
+      const copyAnalysisBtn = document.getElementById('copy-analysis');
+
+      // TTS (Web Speech API)
+      let voices = [];
+      let speaking = false;
+      function loadVoices(){
+        voices = window.speechSynthesis ? speechSynthesis.getVoices() : [];
+      }
+      loadVoices();
+      if (window.speechSynthesis) {
+        window.speechSynthesis.onvoiceschanged = loadVoices;
+      }
+      function pickArabicVoice(){
+        if(!voices || voices.length===0) return null;
+        const exact = voices.find(v=>/^ar(-|$)/i.test(v.lang) && /Google|Microsoft|Apple/i.test(v.name));
+        if(exact) return exact;
+        const anyAr = voices.find(v=>/^ar(-|$)/i.test(v.lang));
+        return anyAr || null;
+      }
+      function speak(text){
+        if(!('speechSynthesis' in window)){
+          alert('المتصفح لا يدعم القراءة الصوتية.');
+          return;
+        }
+        window.speechSynthesis.cancel();
+        if(!text) return;
+        const u = new SpeechSynthesisUtterance(text);
+        const v = pickArabicVoice();
+        if(v) u.voice = v;
+        u.lang = (v && v.lang) || 'ar-SA';
+        u.rate = 0.95; // سرعة مناسبة للفصحى
+        u.pitch = 1.0;
+        u.onstart = ()=>{ speaking = true; speakBtn.textContent = 'إيقاف'; };
+        u.onend   = ()=>{ speaking = false; speakBtn.textContent = 'استمع'; };
+        u.onerror = ()=>{ speaking = false; speakBtn.textContent = 'استمع'; };
+        window.speechSynthesis.speak(u);
+      }
+      function toggleSpeak(){
+        if(speaking){
+          window.speechSynthesis.cancel();
+          speaking = false;
+          speakBtn.textContent = 'استمع';
+          return;
+        }
+        const text = res.textContent.trim();
+        if(!text){
+          err.textContent = 'لا يوجد ناتج لفظي للقراءة.';
+          errWrap.classList.remove('hidden');
+          return;
+        }
+        speak(text);
+      }
+
+      function showResult(text){
+        errWrap.classList.add('hidden');
+        res.textContent = text;
+        resWrap.classList.remove('hidden');
+        resWrap.classList.add('animate-[pop_.18s_ease-out]');
+        setTimeout(()=>resWrap.classList.remove('animate-[pop_.18s_ease-out]'),180);
+      }
+      function showError(text){
+        resWrap.classList.add('hidden');
+        err.textContent = text;
+        errWrap.classList.remove('hidden');
+        errWrap.classList.add('animate-[pop_.18s_ease-out]');
+        setTimeout(()=>errWrap.classList.remove('animate-[pop_.18s_ease-out]'),180);
+      }
+      function updateChips(n){
+        const parts=[];
+        const tenThousands = Math.floor(n/10000);
+        const thousands = Math.floor((n%10000)/1000);
+        const hundredsVal = Math.floor((n%1000)/100);
+        const tensVal = Math.floor((n%100)/10);
+        const onesVal = n%10;
+        if(tenThousands>0) parts.push(`<span class="num-chip px-2.5 py-1 rounded-lg text-xs">`+ formatArabic(tenThousands*10000) + `</span>`);
+        if(thousands>0) parts.push(`<span class="bg-white/80 text-slate-900 px-2.5 py-1 rounded-lg text-xs">`+ formatArabic(thousands*1000) + `</span>`);
+        if(hundredsVal>0) parts.push(`<span class="bg-white/70 text-slate-900 px-2.5 py-1 rounded-lg text-xs">`+ formatArabic(hundredsVal*100) + `</span>`);
+        if(tensVal>0 || onesVal>0){
+          let s='';
+          if(tensVal>0) s += formatArabic(tensVal*10);
+          if(tensVal>0 && onesVal>0) s += ' + ';
+          if(onesVal>0) s += formatArabic(onesVal);
+          parts.push(`<span class="bg-white/60 text-slate-900 px-2.5 py-1 rounded-lg text-xs">`+ s + `</span>`);
+        }
+        chips.innerHTML = parts.join('');
+      }
+      function updateAnalysis(n){
+        const parts = expandedFormOnesFirst(n);
+        analysisDiv.innerHTML = '';
+        parts.forEach(p=>{
+          const el = document.createElement('bdi');
+          el.className = 'seg';
+          el.textContent = p;
+          analysisDiv.appendChild(el);
+        });
+        analysisWrap.classList.remove('hidden');
+      }
+
+      function convert(){
+        const v = Number(inEl.value);
+        if(!Number.isFinite(v) || v<0 || v>99999){
+          showError("من فضلك أدخل عددًا بين 0 و 99,999");
+          return;
+        }
+        const text = numberToWords(v);
+        showResult(text);
+        updateChips(v);
+        updateAnalysis(v);
+        // إذا كان هناك قراءة جارية، أوقفها حتى لا تتعارض مع التحديث
+        if(speaking){ window.speechSynthesis.cancel(); speaking=false; speakBtn.textContent='استمع'; }
+      }
+
+      btn.addEventListener('click', convert);
+      inEl.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); convert(); }});
+      inEl.addEventListener('input', ()=>{ if(autoToggle.checked){ convert(); }});
+
+      copyBtn.addEventListener('click', async ()=>{
+        try{
+          await navigator.clipboard.writeText(res.textContent || '');
+          copyBtn.textContent = '✓ نُسخ';
+          setTimeout(()=> copyBtn.textContent='نسخ', 900);
+        }catch{}
+      });
+      speakBtn.addEventListener('click', toggleSpeak);
+
+      copyAnalysisBtn.addEventListener('click', async ()=>{
+        try{
+          const plain = Array.from(analysisDiv.querySelectorAll('.seg')).map(el=>el.textContent.trim()).join(' + ');
+          await navigator.clipboard.writeText(plain);
+          copyAnalysisBtn.textContent = '✓ نُسخ';
+          setTimeout(()=> copyAnalysisBtn.textContent='نسخ التحليل', 900);
+        }catch{}
+      });
+
+      randomBtn.addEventListener('click', ()=>{
+        const r = Math.floor(Math.random()*100000);
+        inEl.value = r;
+        if(autoToggle.checked){ convert(); } else { showResult(numberToWords(r)); updateChips(r); updateAnalysis(r); }
+      });
+
+      exampleBtns.forEach(b=>{
+        b.addEventListener('click', ()=>{
+          const v = Number(b.getAttribute('data-val'));
+          inEl.value = v;
+          convert();
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
